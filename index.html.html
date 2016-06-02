@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="http://d3js.org/topojson.v1.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+  <link href='https://fonts.googleapis.com/css?family=Arimo:400,700' rel='stylesheet' type='text/css'>
+    <style>
+    html, body{
+      font-family: 'Arimo', sans-serif;
+      margin: 0;
+      padding: 0;
+      height:100vh;
+      width: 100vw;
+      overflow: hidden;
+
+    }
+    #container
+    {
+      height:100%;
+      margin: 0;
+      padding: 0;
+      width:100%;
+      float: left;
+
+    }
+    .svg_map
+    {
+      height:100vh;
+      shape-rendering: auto;
+    }
+    .column
+    {
+        float: left;
+        height: 100%;
+    }
+    .band
+    { float: left;
+      width: 100%;
+      height: 100%;
+      background-color: #EEE;
+    }
+    #opacity_off{
+      background-color:grey;
+    }
+    #message
+    {
+      height:95%;
+    }
+    .bar_g{
+      display: block;
+    }
+    rect
+    {
+      display: inline-block;
+    }
+    #dropdown_container
+    {
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: 1vh; 
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #dropdown_container *
+    {
+      display:inline-block;
+      margin-right: 5vw;   
+    }
+    #info_column
+    {
+      position: relative;
+      width: 20%;
+    }
+    #map_column
+    {
+      position: relative;
+      width: 70%;
+    }
+
+    #interactive_section
+    {
+      display: none;
+      
+    }
+    .messagebox
+    {
+      height: 47%;
+      width: 90%;
+      margin-left: 10%;
+      font-size:200%;
+      display: flex;
+      align-items: center;
+      /*justify-content: center*/
+    }
+    .story_button_area
+    {
+      float: left
+      height: 5%;
+    }
+    .interactive_button_area
+    { float: left;
+      width: 10vw;
+      height: 5vh;
+    }
+    .interactive_button
+    {
+      height: 20px;
+      width: 20px;
+      float: left;
+      border: 2px solid black;
+      margin-right: 10px;
+      font-size:10px;
+      border-radius: 50%;
+      margin-top: 5px;
+      font-weight: bold;
+    }
+    .interactive_button p 
+    {
+      position: relative; 
+      left: 30px;
+      bottom: 12px;
+    }
+
+    .tooltip 
+    {
+      background: #eee;
+      box-shadow: 0 0 5px #999999;
+      color: #333;
+      display: none;
+      font-size: 12px;
+      left: 130px;
+      padding: 10px 0px;
+      position: absolute;
+      text-align: center;
+      top: 95px;
+      width: 275px;
+      z-index: 10;
+    }
+    .axis text 
+    {
+        font: 10px sans-serif;
+    }
+
+    .axis path,
+    .axis line 
+    {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+    }
+
+    html, body{
+      font-family: 'Arimo', sans-serif;
+      margin: 0;
+      padding: 0;
+      height:100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+
+    #container
+    {
+      height:100%;
+      margin: 0;
+      padding: 0;
+      width:100%;
+      float: left;
+    }
+
+    .column
+    {
+      height: 100%;
+      float:left;
+      margin: 0;
+      padding: 0;
+    }
+
+    #left_column
+    {
+      position:relative;
+    }
+
+    .side_column
+    {
+      width:20%;
+    }
+    #right_column
+    {
+      width:10%;
+      float: right;
+    }
+
+    #map_column
+    {
+      width:60%;
+    }
+
+    .right_column_section
+    {
+      width:100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    #legend
+    {
+      height: 80%;
+
+    }
+
+    #thanks
+    {
+      height: 10%;
+      font-size:10px;
+      position: absolute;
+      bottom: 0vh;
+    }
+
+    .collection
+    {
+      display: block
+    }
+
+    #party_button_collection{
+      height: 60vh;
+      width: 100%;
+      margin-bottom: 1%;
+      margin-top: 2.5vh;
+    }
+
+    #filter_button_collection{
+      height: 25vh;
+      width: 100%;
+      margin-top: 10vh;
+    }
+    #story_popup
+    {
+      width: 150%;
+      height: 25%;
+      font-size: 14px;
+      font-weight: bold;
+      border: 1px #ccc solid;
+      border-radius: 6px;
+      box-shadow: #333 2px 2px 4px;
+      margin-left: 1%;
+      position: relative;
+      padding: 5px;
+    }
+    #span_x
+    {
+      color: grey;
+      position: absolute;
+      right: 1%;
+      top: 1%;
+      z-index: 1000;
+    }
+    #span_next
+    {
+      color: grey;
+      position: absolute;
+      right: 1%;
+      bottom: 3%;
+      font-size: 16px;
+      text-decoration: underline;
+      z-index: 1000;
+    }
+    #span_number
+    {
+      height: 0px;
+      width: 0px;
+      overflow: hidden;
+    }
+
+    #story_popup p
+    {
+      font-size: 16px;
+      text-decoration: underline;
+    }
+    #story_column_area
+    {
+      width: 100%;
+      height: 10%;
+      margin-left: 1%
+    }
+
+    .story_button
+    {
+      height: 20px;
+      width: 20px;
+      float: left;
+      border: 2px solid black;
+      margin-right: 10px;
+      font-size:10px;
+      margin-top: 5px
+    }
+    .story_button p
+    {
+      font-size: 16px;
+      margin: 0;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    #instructions
+    {
+      font-size: 12px;
+      font-weight: bold;
+      padding: 5px;
+    }
+
+
+
+    </style>
+    <script type="text/javascript">  
+      function draw(geo_data) {
+
+        /* Create SVG Map Element, Projection and Paths */
+        "use strict";
+        var width = parseInt(d3.select("#map_column").style('width'), 10);
+        var height = parseInt(d3.select("#map_column").style('height'), 10);
+         
+
+        var svg = d3.select("#map_column")
+            .append("svg")
+            .attr('class', 'svg_map')
+            .attr("width", width)
+            .attr("height", height)
+            .call(d3.behavior.zoom().on("zoom", function () {
+              svg.attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
+            }))
+            .append('g')
+            .attr('class', 'map')
+            ;
+
+        var projection = d3.geo.albers()
+                            .center([0, 55.4])
+                            .rotate([4.4, 0])
+                            .parallels([50, 60])
+                            .scale(4000)
+                            .translate([width / 2.25, height / 2.5]);
+
+        var path = d3.geo.path().projection(projection);
+        
+        svg.selectAll('path')
+            .data(topojson.feature(geo_data, geo_data.objects.const_all).features)
+            .enter()
+            .append('path')
+            .attr("d", path)
+            .style('fill', 'white')
+            .style('stroke', 'black')
+            .style('stroke-width', 0.25);
+
+        /* Opacity Scale */    
+
+        var opacity = d3.scale.linear()
+                           .domain([24.5, 81.3])
+                           .range([0, 1]);    
+
+        /* Scalar Variables */                    
+
+        var colour_chart = {"Conservative": 'blue', 
+                            "Labour": 'red', 
+                            "SNP": 'yellow', 
+                            "Liberal Democrat": 'orange',
+                            "Green Party": 'green',
+                            "UKIP": 'purple',
+                            "Plaid Cymru": '#008142',
+                            "DUP": '#D46A4C',
+                            "Sinn Fein": '#003200',
+                            "SDLP": '#99FF66',
+                            "UUP": '#9999FF',
+                            "Independent": 'gray',
+                          };
+
+        var filter_chart = {"Reset": 'white',
+                            "> 60%": '#004600',
+                            "> 50%": 'green',
+                            "< 50%": '#e02626',
+                            "< 40%": '#b00b0b'
+                          };                  
+
+        var anim_message_chart = {
+          "1":"The UK General Election is usually held every 5 years and most recently took place in 2015. The election can be best thought of as 650 mini races. One for each constituency electing a single Member of Parliment (MP) using the 'First Past The Post' system.",
+          "2":"The 'First Past The Post' system of voting means that the winner is the candidate with the most votes, even if they score less that 50% of the total votes cast. In the 2015 election 313 constituencies were won by a candidate with more than 50% of the vote...",
+          "3":"...337 were not.",
+          "4":"The worst offender is Belfast South, elected with 24.5% of the popular vote. To reiterate this, 75.5% of the electorate wanted someone else to represent them.",
+          "5":"In the UK, MPs usually belong to a larger political party, and the party that gathers the majority of the seats takes control. In the most recent election, the Conservative Party won 330 of the 650 seats, which means they get 100% of the control.",
+          "6":"This is bad enough, however, in terms of actual percentage of votes cast, the Conservatives got 36.9%. Additionally, 172 of the 330 seats won were with a constituency share of less than 50%. Yet despite numbers as low as these, they still have full control of the government.",
+          "7":"On this map, the colour of each constituency refers to the politcial party of the winning MP and the opacity shows what share of the vote they recieved.",
+          "8":"With such a low consensus in candidate respresentation, is it time for the UK to ditch the 'First Past The Post' method?",
+        };
+
+        /* Functions List */
+
+        function reset_map(){
+            svg.selectAll('path').style('fill', 'white').style('fill', const_colour).style('fill-opacity', const_opac).style('stroke-opacity', 1);
+            svg.selectAll('path').on('mouseover', function(d) {
+                            d3.select(this)
+                              .transition()
+                              .duration(50)
+                              .style('fill-opacity', 1)
+                              .style('stroke', 'black')
+                              .style('stroke-width', 0.25);
+                            tooltip.select('.t_cand_const').text(d['properties']['vote_summary']['winner']['constituencyname']);
+                            tooltip.style('display', 'block');
+                            plot_const(d);
+                          })
+                         .on('mouseout', function() {
+                            d3.select(this)
+                              .transition()
+                              .duration(50)
+                              .style('fill-opacity', const_opac)
+                              .style('stroke', 'black')
+                              .style('stroke-width', 0.25)
+                              .style('stroke-opacity', 1)     
+                              ;
+                              tooltip.style('display', 'none');
+                              d3.select('#bar_svg').remove();
+                          });
+            };
+
+        /* Helper Functions for Opening Animation */
+
+
+        /* When individual chapter is selected from opening animation, runs this code to select story element */
+        function select_story(story_num){
+              var selected_box = '#story' + story_num;
+              d3.selectAll('.story_button').style('background-color', "#F0F8FF");
+              d3.select(selected_box).style('background-color', 'orange');
+              d3.select('#story_popup_text').text(anim_message_chart[story_num]);
+              if (story_num == "2"){
+                morethanfifty();
+              }
+              if (story_num == "3"){
+                lessthanfifty();
+              }
+              if (story_num == "5"){
+                select_party("Conservative");
+              }
+              if (story_num == "6"){
+                badconservative();
+              }
+              if (story_num == "7"){
+                colourmap();
+                opaquemap();
+              }
+              if (story_num == "9"){
+                delete_popup();
+              }
+              
+              d3.select('#span_number').text(story_num);
+            }
+
+        function morethanfifty(){
+          reset_map();
+          svg.selectAll('path')
+              .style('fill', 'white')
+              .filter(function(d) {
+                                    return parseFloat(d['properties']['vote_summary']['winner']['share'],10) > 50.0;
+                                  })
+              .style('fill', 'green');
+        }
+
+        function morethansixty(){
+          reset_map();
+          svg.selectAll('path')
+              .style('fill', 'white')
+              .filter(function(d) {
+                                    return parseFloat(d['properties']['vote_summary']['winner']['share'],10) > 60.0;
+                                  })
+              .style('fill', 'green');
+        }
+
+        function lessthanfifty(){
+          reset_map();
+          svg.selectAll('path')
+              .style('fill', 'white')
+              .filter(function(d) {
+                                    return parseFloat(d['properties']['vote_summary']['winner']['share'],10) <= 50.0;
+                                  })
+              .style('fill', 'red');
+        }
+
+        function lessthanforty(){
+          reset_map();
+          svg.selectAll('path')
+              .style('fill', 'white')
+              .filter(function(d) {
+                                    return parseFloat(d['properties']['vote_summary']['winner']['share'],10) <= 40.0;
+                                  })
+              .style('fill', 'red');
+        }
+
+        function select_party(party){
+            svg.selectAll('path').style('fill', 'white')
+                                  .style('fill-opacity', const_opac)
+                                  .filter(function(d) {
+                                          return d['properties']['vote_summary']['winner']['party'] === party;
+                                        })
+                                  .style('fill', function(){
+                                    return colour_chart[party];
+                                  })                                  ;                    
+        }
+
+        function colourmap(){
+          svg.selectAll('path').style('fill', const_colour);
+        }
+
+        function opaquemap(){
+          svg.selectAll('path').style('fill-opacity', const_opac);
+        }
+
+        function opaque_off(){
+          svg.selectAll('path').style('fill-opacity', const_opac);
+        }
+
+        function const_colour(d) {
+            if(colour_chart[d['properties']['vote_summary']['winner']['party']]){
+                    return colour_chart[d['properties']['vote_summary']['winner']['party']];}
+            else{ return 'grey';}        
+                }
+
+        function const_opac(d) {
+          return opacity(parseInt(d['properties']['vote_summary']['winner']['share']));
+        }
+          d3.select('#skip_anim').style("display", "none");
+          
+
+          d3.select('#interactive_section').style('display', 'inline');
+
+        function delete_popup(){
+              d3.select('#story_popup').style('display', 'none');
+            }
+
+        function show_popup(){
+              d3.select('#story_popup').style('display', 'block');
+            }
+
+            d3.select('#span_x').on("click", function(){
+                select_story("9");
+            });
+
+        function filter_by(filter){
+            reset_map();
+            if (filter == '> 60%'){
+              morethansixty();           
+            }
+            if (filter == '> 50%'){
+              morethanfifty();                           
+            }
+            if (filter == '< 50%'){
+              lessthanfifty();               
+            }
+            if (filter == '< 40%'){
+              lessthanforty();           
+            }
+          }    
+
+        function badconservative(){
+              reset_map();
+              svg.selectAll('path')
+              .style('fill', 'white')
+              .filter(function(d) {
+                                    return parseFloat(d['properties']['vote_summary']['winner']['share'],10) <= 50.0 && 
+                                                      d['properties']['vote_summary']['winner']['party'] == 'Conservative';
+                                  })
+              .style('fill', 'blue');
+
+        }
+
+        /* Static Sections Creation (eg. Legend, Interactive Buttons and Filters) */  
+
+        for (var party in colour_chart) {
+            d3.select("#party_button_collection")
+                         .append("div")
+                         .attr("class","interactive_button_area")
+                         .append("div")
+                         .attr("class","party_button interactive_button")
+                         .attr("value", party)  
+                         .style('background-color', colour_chart[party])
+                         .append("p")
+                         .attr("class","party_button_text")
+                         .text(party);           
+          };
+
+        for (var filter in filter_chart) {
+            d3.select("#filter_button_collection")
+                         .append("div")
+                         .attr("class","interactive_button_area")
+                         .append("div")
+                         .attr("class","filter_button interactive_button")
+                         .attr("value", filter)  
+                         .style('background-color', filter_chart[filter])
+                         .append("p")
+                         .attr("class","party_button_text")
+                         .text(filter);
+          };
+
+        for (var story in anim_message_chart) {
+            d3.select("#story_column_area")
+                         .append("div")
+                         .attr("class","story_button_area")
+                         .append("div")
+                         .attr("class","story_button")
+                         .attr("id", "story" + story)  
+                         .style('background-color', "#F0F8FF")
+                         .append("p")
+                         .attr("class","story_button_text")
+                         .text(story);
+          };
+
+        select_story(1);
+            
+        /* On Click Animators - Telling the map to perform a specfic function */
+
+        d3.select('#span_next').on("click", function(){
+          reset_map();
+          var new_story = parseInt(d3.select('#span_number')[0][0]['textContent'])+1;
+          select_story(new_story);
+        });               
+
+        d3.selectAll('.party_button').on("click", function(){
+          reset_map();
+          var party = d3.select(this)[0][0]['textContent'];
+          select_party(party);
+        });
+
+        d3.selectAll('.filter_button').on("click", function(){
+          reset_map();
+          var filter = d3.select(this)[0][0]['textContent'];
+          filter_by(filter);
+        });
+
+        d3.selectAll('.story_button').on("click", function(){
+          reset_map();
+          var story_num = d3.select(this)[0][0]['textContent'];
+          show_popup();
+          select_story(story_num);
+        });
+
+        /* Tooltip Creation and Bar Graph*/
+         
+        function plot_const(constituency){
+          
+          var bc_height = 65;
+          var bc_width = 250;
+          var barHeight = 20;
+          var bar_svg = tooltip.append('svg')
+                .attr('width', bc_width)
+                .attr('height', bc_height)
+                .attr('id', 'bar_svg');
+          var x_scale = d3.scale.linear()
+                    .domain([0,85])
+                    .range([0, bc_width]);
+          var y_scale = d3.scale.ordinal()
+                    .domain(["Other Candidates", constituency['properties']['vote_summary']['winner']['name']])
+                    .rangeRoundBands([0, 40], .1);          
+          var this_transform = 0            
+          var running_transform = 5           
+          var bar_chart = bar_svg.selectAll('g')
+                      .data(constituency['properties']['results'])
+                      .enter()
+                      .append('g')
+                      .attr('class', 'bar_g')
+
+          bar_chart.filter(function(d) {return d['name'] != constituency['properties']['vote_summary']['winner']['name']})
+                      .sort(function(a,b){ return d3.descending(a['votes'],b['votes']); } )
+                      .attr("transform", function(d, i) { 
+                          if ( i == 0) {
+                            running_transform += x_scale(d['share'])
+                            return "translate(5,0)";
+                          }
+                          else {
+                            this_transform = running_transform
+                            running_transform += x_scale(d['share']);
+                            return "translate(" + this_transform + ",0)";
+                          }
+
+
+                      });
+
+          bar_chart.filter(function(d) {return d['name'] == constituency['properties']['vote_summary']['winner']['name']})
+                      .attr("transform", function(d, i) { 
+                            return "translate(5," + barHeight + ")";
+                          });          
+                      
+          bar_chart.append("rect")
+            .attr("height", barHeight - 1)
+            .attr("width", function(d) {return x_scale(d['share']); })
+            .style('fill', function (d, i) {
+                      return colour_chart[d['party']];
+                      }); 
+          var xAxis = d3.svg.axis()
+                        .scale(x_scale)
+                        .orient("bottom");
+          var yAxis = d3.svg.axis()
+                        .scale(y_scale)
+                        .orient("left");              
+          bar_svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(5," + 45 + ")")
+                .call(xAxis);
+          var yaxis_width = bc_width + 6;      
+          bar_svg.append("g")
+                .attr("class", "y axis")
+                .attr("transform", "translate(" + yaxis_width + ",0)")
+                .call(yAxis);                                                
+        } 
+
+        var tooltip = d3.select('#map_column')             
+          .append('div')                             
+          .attr('class', 'tooltip');                        
+
+        tooltip.append('div')                        
+          .attr('class', 't_cand_const');
+
+        svg.selectAll('path').on('mousemove', function(d) {
+          tooltip.style('top', (d3.event.layerY + 10) + 'px')
+            .style('left', (d3.event.layerX + 10) + 'px');
+          });
+
+            
+  }
+      </script>
+  </head>
+<body>
+
+<div id="container">
+  <div id="left_column" class="column side_column">
+    <div id="story_column_area"></div>
+    <div id="story_popup">
+      <div id="span_x">X</div>
+      <p>The Problem With First Past The Post</p>
+      <div id="story_popup_text"></div>
+      <div id="span_number"></div>
+      <div id="span_next">Next >></div>
+    </div>
+    <div id="instructions" class="right_column_section">
+      <h2>Instructions</h2>
+      <p>Navigate around the map by scrolling over constituencies to see indiviudal election results, and the percentage of votes from the winning MP compared to the combined votes of the other candidates.</br></br>
+      To view the introductory slides again, click the numbered story buttons above.</br></br> 
+      Click and drag the map to move it around, and scroll or double click to zoom in.</br></br>
+      Use the legend on the right to filter constituencies either by party, or by vote share of the winning MP.<p>
+    </div>
+    <div id="thanks" class="right_column_section">
+      <p>Based On a Video By <a href='https://www.youtube.com/watch?v=r9rGX91rq5I'>CGP Grey</a>, TopoJSON data for UK constituencies <a href='http://vis.oobrien.com/election2015/data/const15_simp1p5_withid.topojson.json'>here</a> and voting data <a href='https://github.com/robfarr/UK-General-Election-2015-Data'>here</a>.</p>
+    </div>
+  </div>
+  <div id="map_column" class="column">
+  </div>
+  <div id="right_column" class="column side_column">
+    <div id="legend" class="right_column_section">
+      <div id="party_button_collection" class="collection">
+      </div>
+      <div id="filter_button_collection" class="collection">
+      </div>
+    </div>
+    
+  </div>
+</div>  
+<script type="text/javascript">  
+d3.json("topo_wi_modified_pnames.json", function(error, uk) {
+  if (error) return console.error(error);
+  draw(uk);
+});
+  </script>
+</body>
+</html>
+
